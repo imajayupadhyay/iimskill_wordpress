@@ -202,6 +202,12 @@ function skillignative_scripts() {
 		wp_enqueue_script( 'skillignative-course-detail-js', get_template_directory_uri() . '/assets/js/course-detail.js', array(), _S_VERSION, true );
 	}
 
+	// Awards page CSS + JS (on the dedicated Awards page)
+	if ( is_page_template( 'page-awards.php' ) ) {
+		wp_enqueue_style( 'skillignative-awards', get_template_directory_uri() . '/assets/css/awards.css', array( 'skillignative-global' ), _S_VERSION );
+		wp_enqueue_script( 'skillignative-awards-js', get_template_directory_uri() . '/assets/js/awards.js', array(), _S_VERSION, true );
+	}
+
 	// Blog detail JS (on single posts)
 	if ( is_single() ) {
 		wp_enqueue_script( 'skillignative-detail-js', get_template_directory_uri() . '/assets/js/detail.js', array(), _S_VERSION, true );
@@ -455,6 +461,7 @@ if ( defined( 'JETPACK__VERSION' ) ) {
  * Custom Post Types.
  */
 require get_template_directory() . '/inc/cpt-courses.php';
+require get_template_directory() . '/inc/cpt-awards.php';
 
 /**
  * Custom navigation walker (mega menu support).
@@ -485,6 +492,11 @@ require get_template_directory() . '/inc/course-detail-meta.php';
  * Blog Settings admin page (submenu under Posts).
  */
 require get_template_directory() . '/inc/blog-settings.php';
+
+/**
+ * Awards Settings admin page (submenu under Awards CPT).
+ */
+require get_template_directory() . '/inc/awards-settings.php';
 
 /**
  * Blog Sidebar Settings admin page (Posts > Contact Details).
