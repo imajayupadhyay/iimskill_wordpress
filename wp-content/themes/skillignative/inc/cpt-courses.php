@@ -99,6 +99,7 @@ function skillignative_course_details_callback( $post ) {
 	$btn_text   = get_post_meta( $post->ID, '_course_btn_text', true ) ?: 'More Info';
 	$btn_url    = get_post_meta( $post->ID, '_course_btn_url', true ) ?: '#';
 	$bg_color   = get_post_meta( $post->ID, '_course_bg_color', true ) ?: '#f5f0c8';
+	$featured   = get_post_meta( $post->ID, '_course_featured', true );
 	?>
 	<style>
 		.course-meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
@@ -108,7 +109,20 @@ function skillignative_course_details_callback( $post ) {
 		.course-meta-field input[type="url"] { width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; }
 		.course-meta-field input[type="color"] { width: 60px; height: 40px; padding: 2px; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; }
 		.course-meta-field .description { font-size: 12px; color: #666; margin-top: 4px; }
+		.course-featured-toggle { display: flex; align-items: center; gap: 12px; background: #f0f6fc; border: 1px solid #c3d9f0; border-radius: 6px; padding: 12px 16px; margin-bottom: 18px; }
+		.course-featured-toggle input[type="checkbox"] { width: 18px; height: 18px; accent-color: #155dfc; cursor: pointer; margin: 0; }
+		.course-featured-toggle .featured-label { font-size: 14px; font-weight: 600; color: #1a1a2e; }
+		.course-featured-toggle .featured-desc { font-size: 12px; color: #666; margin-top: 2px; }
 	</style>
+
+	<!-- Featured Toggle -->
+	<div class="course-featured-toggle">
+		<input type="checkbox" id="course_featured" name="course_featured" value="1" <?php checked( $featured, '1' ); ?>>
+		<div>
+			<div class="featured-label">⭐ Show on Homepage (Featured)</div>
+			<div class="featured-desc">When checked, this course appears in the Popular Courses section on the homepage.</div>
+		</div>
+	</div>
 
 	<div class="course-meta-grid">
 		<div class="course-meta-field">
@@ -161,6 +175,9 @@ function skillignative_save_course_meta( $post_id ) {
 			update_post_meta( $post_id, '_' . $field, sanitize_text_field( $_POST[ $field ] ) );
 		}
 	}
+
+	// Featured checkbox — save 1 if checked, 0 if unchecked
+	update_post_meta( $post_id, '_course_featured', isset( $_POST['course_featured'] ) ? '1' : '0' );
 }
 add_action( 'save_post', 'skillignative_save_course_meta' );
 
@@ -172,6 +189,7 @@ function skillignative_course_columns( $columns ) {
 	foreach ( $columns as $key => $val ) {
 		$new[ $key ] = $val;
 		if ( 'title' === $key ) {
+			$new['course_featured'] = '⭐ Featured';
 			$new['course_category'] = 'Category';
 			$new['course_duration'] = 'Duration';
 		}
@@ -181,6 +199,12 @@ function skillignative_course_columns( $columns ) {
 add_filter( 'manage_course_posts_columns', 'skillignative_course_columns' );
 
 function skillignative_course_column_data( $column, $post_id ) {
+	if ( 'course_featured' === $column ) {
+		$featured = get_post_meta( $post_id, '_course_featured', true );
+		echo '1' === $featured
+			? '<span style="color:#155dfc;font-size:16px;" title="Featured on homepage">⭐</span>'
+			: '<span style="color:#ccc;font-size:16px;" title="Not featured">☆</span>';
+	}
 	if ( 'course_category' === $column ) {
 		$terms = get_the_terms( $post_id, 'course_category' );
 		echo $terms ? esc_html( implode( ', ', wp_list_pluck( $terms, 'name' ) ) ) : '—';

@@ -299,13 +299,32 @@ $assets = get_template_directory_uri() . '/assets';
     $courses_title           = get_post_meta( $page_id, '_courses_title', true ) ?: 'Popular';
     $courses_title_highlight = get_post_meta( $page_id, '_courses_title_highlight', true ) ?: 'Courses';
 
-    // Get all course categories (these become tabs)
-    $course_categories = get_terms( array(
+    // Get only categories that have at least one FEATURED course
+    $all_categories = get_terms( array(
         'taxonomy'   => 'course_category',
         'hide_empty' => true,
         'orderby'    => 'term_order',
     ) );
-    $has_courses = ! empty( $course_categories ) && ! is_wp_error( $course_categories );
+    $course_categories = array();
+    if ( ! empty( $all_categories ) && ! is_wp_error( $all_categories ) ) {
+        foreach ( $all_categories as $cat ) {
+            $check = new WP_Query( array(
+                'post_type'      => 'course',
+                'posts_per_page' => 1,
+                'fields'         => 'ids',
+                'tax_query'      => array(
+                    array( 'taxonomy' => 'course_category', 'field' => 'term_id', 'terms' => $cat->term_id ),
+                ),
+                'meta_query'     => array(
+                    array( 'key' => '_course_featured', 'value' => '1' ),
+                ),
+            ) );
+            if ( $check->have_posts() ) {
+                $course_categories[] = $cat;
+            }
+        }
+    }
+    $has_courses = ! empty( $course_categories );
     ?>
     <section class="popular-courses">
         <div class="courses-container">
@@ -333,6 +352,12 @@ $assets = get_template_directory_uri() . '/assets';
                                     'taxonomy' => 'course_category',
                                     'field'    => 'term_id',
                                     'terms'    => $cat->term_id,
+                                ),
+                            ),
+                            'meta_query'     => array(
+                                array(
+                                    'key'   => '_course_featured',
+                                    'value' => '1',
                                 ),
                             ),
                         ) );
