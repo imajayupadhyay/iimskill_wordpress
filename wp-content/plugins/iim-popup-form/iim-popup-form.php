@@ -34,8 +34,8 @@ class IIM_Popup_Form {
      */
     public function add_settings_page() {
         add_options_page(
-            'IIM Popup Form',
-            'IIM Popup Form',
+            'Popup Form',
+            'Popup Form',
             'manage_options',
             'iim-popup-form',
             array( $this, 'settings_page_html' )
@@ -67,7 +67,7 @@ class IIM_Popup_Form {
         $subheading    = get_option( 'iim_popup_subheading', 'Fill in your details and we will get back to you shortly.' );
         ?>
         <div class="wrap">
-            <h1>IIM Popup Form Settings</h1>
+            <h1>Popup Form Settings</h1>
             <form method="post" action="options.php">
                 <?php settings_fields( 'iim_popup_form' ); ?>
                 <table class="form-table">
