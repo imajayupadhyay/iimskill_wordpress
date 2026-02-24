@@ -16,6 +16,20 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Register meta boxes for the contact page.
  */
 function skillignative_contact_meta_boxes() {
+	// Only show on the Contact Us page
+	$post_id = isset( $_GET['post'] ) ? intval( $_GET['post'] ) : 0;
+	if ( ! $post_id && isset( $_POST['post_ID'] ) ) {
+		$post_id = intval( $_POST['post_ID'] );
+	}
+	$contact_page = get_page_by_path( 'contact-us' );
+	if ( ! $contact_page ) {
+		$contact_page = get_page_by_title( 'Contact Us' );
+	}
+	$contact_page_id = $contact_page ? (int) $contact_page->ID : 0;
+	if ( $post_id !== $contact_page_id ) {
+		return;
+	}
+
 	add_meta_box(
 		'skillignative_contact_hero',
 		'Contact Hero Section',

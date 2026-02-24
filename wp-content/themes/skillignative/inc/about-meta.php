@@ -16,6 +16,20 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Register meta boxes for the about page.
  */
 function skillignative_about_meta_boxes() {
+	// Only show on the About page
+	$post_id = isset( $_GET['post'] ) ? intval( $_GET['post'] ) : 0;
+	if ( ! $post_id && isset( $_POST['post_ID'] ) ) {
+		$post_id = intval( $_POST['post_ID'] );
+	}
+	$about_page = get_page_by_path( 'about' );
+	if ( ! $about_page ) {
+		$about_page = get_page_by_title( 'About' );
+	}
+	$about_page_id = $about_page ? (int) $about_page->ID : 0;
+	if ( $post_id !== $about_page_id ) {
+		return;
+	}
+
 	add_meta_box(
 		'skillignative_about_hero',
 		'About Hero Section',

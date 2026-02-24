@@ -16,7 +16,19 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Register meta boxes for homepage.
  */
 function skillignative_homepage_meta_boxes() {
-	// Only show on pages
+	// Only show on the Homepage (front page)
+	$screen = get_current_screen();
+	if ( $screen && 'page' === $screen->post_type ) {
+		$post_id = isset( $_GET['post'] ) ? intval( $_GET['post'] ) : 0;
+		if ( ! $post_id && isset( $_POST['post_ID'] ) ) {
+			$post_id = intval( $_POST['post_ID'] );
+		}
+		$front_page_id = (int) get_option( 'page_on_front' );
+		if ( $post_id !== $front_page_id ) {
+			return;
+		}
+	}
+
 	add_meta_box(
 		'skillignative_hero_section',
 		'Hero Section',
