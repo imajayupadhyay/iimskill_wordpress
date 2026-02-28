@@ -22,31 +22,106 @@ navLinks.forEach(link => {
 const megaMenuItems = document.querySelectorAll('.nav-item.has-mega-menu');
 
 megaMenuItems.forEach(item => {
-    const link = item.querySelector('a');
+    const link     = item.querySelector('a');
     const megaMenu = item.querySelector('.mega-menu');
-    
+
     if (link && megaMenu) {
-        // Click handler for mobile
+
+        // ── Mobile: click to toggle ──────────────────────────────────
         link.addEventListener('click', function(e) {
-            // Only prevent default and toggle on mobile
             if (window.innerWidth <= 900) {
                 e.preventDefault();
-                
-                // Close other mega menus
                 megaMenuItems.forEach(otherItem => {
-                    if (otherItem !== item) {
-                        otherItem.classList.remove('mega-menu-active');
-                    }
+                    if (otherItem !== item) otherItem.classList.remove('mega-menu-active');
                 });
-                
-                // Toggle current mega menu
                 item.classList.toggle('mega-menu-active');
+            }
+        });
+
+        // ── Desktop: robust hover intent ─────────────────────────────
+        // Strategy:
+        // 1. CSS bridge (::before pseudo-element) eliminates the physical
+        //    gap so the mouse never "leaves" the interactive area.
+        // 2. JS .mega-menu-open class is the SOLE visibility controller
+        //    (no CSS :hover dependency = no race conditions).
+        // 3. A generous close delay ensures the menu survives brief
+        //    mouse movements between the nav item and the mega menu.
+
+        let closeTimer = null;
+
+        function openMenu() {
+            clearTimeout(closeTimer);
+            megaMenuItems.forEach(other => {
+                if (other !== item) {
+                    other.classList.remove('mega-menu-open');
+                }
+            });
+            item.classList.add('mega-menu-open');
+        }
+
+        function scheduleClose() {
+            clearTimeout(closeTimer);
+            closeTimer = setTimeout(function() {
+                item.classList.remove('mega-menu-open');
+            }, 400);
+        }
+
+        // Use a single mouseleave check: is the mouse now inside the
+        // mega menu or the nav item? If so, cancel close.
+        function cancelCloseIfStillInside(e) {
+            var related = e.relatedTarget;
+            if (related && (item.contains(related) || megaMenu.contains(related))) {
+                clearTimeout(closeTimer);
+                return true;
+            }
+            return false;
+        }
+
+        // Nav item (<li>) events
+        item.addEventListener('mouseenter', function() {
+            if (window.innerWidth > 900) openMenu();
+        });
+        item.addEventListener('mouseleave', function(e) {
+            if (window.innerWidth > 900) {
+                if (!cancelCloseIfStillInside(e)) scheduleClose();
+            }
+        });
+
+        // Mega menu panel events
+        megaMenu.addEventListener('mouseenter', function() {
+            if (window.innerWidth > 900) {
+                clearTimeout(closeTimer);
+                item.classList.add('mega-menu-open');
+            }
+        });
+        megaMenu.addEventListener('mouseleave', function(e) {
+            if (window.innerWidth > 900) {
+                if (!cancelCloseIfStillInside(e)) scheduleClose();
             }
         });
     }
 });
 
-// Handle window resize - remove active states when switching to desktop
+// Close mega menu when clicking outside (desktop)
+document.addEventListener('click', function(e) {
+    megaMenuItems.forEach(item => {
+        if (!item.contains(e.target)) {
+            item.classList.remove('mega-menu-open');
+        }
+    });
+});
+
+// Close mega menu on Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        megaMenuItems.forEach(item => {
+            item.classList.remove('mega-menu-open');
+            item.classList.remove('mega-menu-active');
+        });
+    }
+});
+
+// Handle window resize
 let resizeTimer;
 window.addEventListener('resize', function() {
     clearTimeout(resizeTimer);
@@ -54,6 +129,7 @@ window.addEventListener('resize', function() {
         if (window.innerWidth > 900) {
             megaMenuItems.forEach(item => {
                 item.classList.remove('mega-menu-active');
+                item.classList.remove('mega-menu-open');
             });
         }
     }, 250);

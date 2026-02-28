@@ -3,7 +3,7 @@
  * Footer Settings — Appearance submenu
  *
  * Central admin page to manage all footer content:
- *   Column 1: Description + social links
+ *   Column 1: Logo + Description + social links
  *   Column 2: Quick Links (repeater)
  *   Column 3: Popular Courses (repeater)
  *   Column 4: Contact Info (address, phone, email, hours)
@@ -44,6 +44,7 @@ function skillignative_footer_settings_save() {
 	}
 
 	// Column 1 — About
+	update_option( '_footer_logo_url', esc_url_raw( wp_unslash( $_POST['_footer_logo_url'] ?? '' ) ) );
 	update_option( '_footer_description', sanitize_textarea_field( wp_unslash( $_POST['_footer_description'] ?? '' ) ) );
 	$socials = array( 'facebook', 'twitter', 'linkedin', 'instagram', 'youtube' );
 	foreach ( $socials as $s ) {
@@ -108,8 +109,13 @@ add_action( 'admin_post_skillignative_footer_save', 'skillignative_footer_settin
    RENDER PAGE
 ============================================================ */
 function skillignative_footer_settings_page() {
+
+	// Enqueue WP media uploader
+	wp_enqueue_media();
+
 	// Load current values with defaults
-	$desc = get_option( '_footer_description', 'IIM SKILLS is a leading online education platform offering industry-relevant courses in Data Analytics, Digital Marketing, Investment Banking, Financial Modeling, and more.' );
+	$logo_url = get_option( '_footer_logo_url', get_template_directory_uri() . '/assets/images/iim-skills-official-logo.png' );
+	$desc     = get_option( '_footer_description', 'IIM SKILLS is a leading online education platform offering industry-relevant courses in Data Analytics, Digital Marketing, Investment Banking, Financial Modeling, and more.' );
 
 	$social_urls = array();
 	foreach ( array( 'facebook', 'twitter', 'linkedin', 'instagram', 'youtube' ) as $s ) {
@@ -151,20 +157,24 @@ function skillignative_footer_settings_page() {
 
 	$saved = isset( $_GET['saved'] ) && '1' === $_GET['saved'];
 
-	// Helper to render a link repeater
+	// Helper: render a link repeater with remove buttons and add button
 	$render_links = function ( $name, $links ) {
+		$container_id = 'flc-' . md5( $name );
+		echo '<div id="' . esc_attr( $container_id ) . '">';
 		foreach ( $links as $i => $link ) {
-			echo '<div style="display:flex;gap:8px;margin-bottom:8px;align-items:center;">';
-			echo '<input type="text" name="' . $name . '[' . $i . '][label]" value="' . esc_attr( $link['label'] ) . '" placeholder="Label" style="flex:1;padding:8px;border:1px solid #ddd;border-radius:4px;">';
-			echo '<input type="url" name="' . $name . '[' . $i . '][url]" value="' . esc_attr( $link['url'] ) . '" placeholder="URL" style="flex:1;padding:8px;border:1px solid #ddd;border-radius:4px;">';
+			echo '<div class="footer-link-row" style="display:flex;gap:8px;margin-bottom:8px;align-items:center;">';
+			echo '<input type="text" name="' . esc_attr( $name ) . '[' . $i . '][label]" value="' . esc_attr( $link['label'] ) . '" placeholder="Label" style="flex:1;padding:8px;border:1px solid #ddd;border-radius:4px;">';
+			echo '<input type="url" name="' . esc_attr( $name ) . '[' . $i . '][url]" value="' . esc_attr( $link['url'] ) . '" placeholder="URL" style="flex:1;padding:8px;border:1px solid #ddd;border-radius:4px;">';
+			echo '<button type="button" class="footer-remove-row" title="Remove" style="background:#dc3232;color:#fff;border:none;border-radius:4px;width:32px;height:34px;cursor:pointer;font-size:18px;font-weight:700;line-height:1;flex-shrink:0;">×</button>';
 			echo '</div>';
 		}
-		// Extra empty row for adding
-		$next = count( $links );
-		echo '<div style="display:flex;gap:8px;margin-bottom:4px;align-items:center;">';
-		echo '<input type="text" name="' . $name . '[' . $next . '][label]" value="" placeholder="+ Add label" style="flex:1;padding:8px;border:1px solid #ddd;border-radius:4px;opacity:0.6;">';
-		echo '<input type="url" name="' . $name . '[' . $next . '][url]" value="" placeholder="URL" style="flex:1;padding:8px;border:1px solid #ddd;border-radius:4px;opacity:0.6;">';
 		echo '</div>';
+		$next = count( $links );
+		echo '<button type="button" class="button footer-add-row" '
+			. 'data-container="' . esc_attr( $container_id ) . '" '
+			. 'data-name="' . esc_attr( $name ) . '" '
+			. 'data-count="' . $next . '" '
+			. 'style="margin-top:4px;">+ Add Link</button>';
 	};
 	?>
 	<div class="wrap">
@@ -184,14 +194,29 @@ function skillignative_footer_settings_page() {
 				<!-- ======== COLUMN 1: About ======== -->
 				<div style="background:#fff;border:1px solid #e0e0e0;border-radius:8px;padding:24px;">
 					<h3 style="margin:0 0 16px;font-size:15px;">Column 1 — About & Social</h3>
+
+					<label style="font-weight:600;font-size:13px;display:block;margin-bottom:6px;">Footer Logo</label>
+					<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+						<input type="text" id="footer_logo_url" name="_footer_logo_url"
+							value="<?php echo esc_attr( $logo_url ); ?>"
+							placeholder="Logo image URL"
+							style="flex:1;padding:8px;border:1px solid #ddd;border-radius:4px;">
+						<button type="button" id="footer_logo_upload_btn" class="button">Upload / Choose</button>
+					</div>
+					<div id="footer_logo_preview" style="margin-bottom:16px;">
+						<?php if ( $logo_url ) : ?>
+						<img src="<?php echo esc_url( $logo_url ); ?>" style="max-height:60px;border:1px solid #eee;padding:6px;border-radius:4px;background:#f9f9f9;">
+						<?php endif; ?>
+					</div>
+
 					<label style="font-weight:600;font-size:13px;">Description</label>
 					<textarea name="_footer_description" rows="4" style="width:100%;margin:6px 0 16px;padding:10px;border:1px solid #ddd;border-radius:4px;"><?php echo esc_textarea( $desc ); ?></textarea>
 
 					<p style="font-weight:600;font-size:13px;margin:0 0 8px;">Social Media URLs</p>
 					<?php foreach ( $social_urls as $key => $url ) : ?>
 					<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
-						<label style="width:80px;font-size:12px;text-transform:capitalize;font-weight:500;"><?php echo $key; ?></label>
-						<input type="url" name="_footer_<?php echo $key; ?>_url" value="<?php echo esc_attr( $url ); ?>" style="flex:1;padding:8px;border:1px solid #ddd;border-radius:4px;">
+						<label style="width:80px;font-size:12px;text-transform:capitalize;font-weight:500;"><?php echo esc_html( $key ); ?></label>
+						<input type="url" name="_footer_<?php echo esc_attr( $key ); ?>_url" value="<?php echo esc_attr( $url ); ?>" style="flex:1;padding:8px;border:1px solid #ddd;border-radius:4px;">
 					</div>
 					<?php endforeach; ?>
 				</div>
@@ -257,6 +282,55 @@ function skillignative_footer_settings_page() {
 			</div>
 		</form>
 	</div>
+
+	<script>
+	jQuery(function($){
+
+		/* ---- Remove a link row ---- */
+		$(document).on('click', '.footer-remove-row', function(){
+			$(this).closest('.footer-link-row').remove();
+		});
+
+		/* ---- Add a new link row ---- */
+		$(document).on('click', '.footer-add-row', function(){
+			var btn       = $(this);
+			var container = $('#' + btn.data('container'));
+			var name      = btn.data('name');
+			var count     = parseInt(btn.data('count'), 10);
+
+			var row = $('<div class="footer-link-row" style="display:flex;gap:8px;margin-bottom:8px;align-items:center;"></div>');
+			row.append('<input type="text" name="'+name+'['+count+'][label]" value="" placeholder="Label" style="flex:1;padding:8px;border:1px solid #ddd;border-radius:4px;">');
+			row.append('<input type="url"  name="'+name+'['+count+'][url]"   value="" placeholder="URL"   style="flex:1;padding:8px;border:1px solid #ddd;border-radius:4px;">');
+			row.append('<button type="button" class="footer-remove-row" title="Remove" style="background:#dc3232;color:#fff;border:none;border-radius:4px;width:32px;height:34px;cursor:pointer;font-size:18px;font-weight:700;line-height:1;flex-shrink:0;">&times;</button>');
+
+			container.append(row);
+			btn.data('count', count + 1);
+		});
+
+		/* ---- Logo media uploader ---- */
+		var mediaUploader;
+		$('#footer_logo_upload_btn').on('click', function(e){
+			e.preventDefault();
+			if ( mediaUploader ) {
+				mediaUploader.open();
+				return;
+			}
+			mediaUploader = wp.media({
+				title   : 'Choose Footer Logo',
+				button  : { text: 'Use as Footer Logo' },
+				multiple: false
+			});
+			mediaUploader.on('select', function(){
+				var attachment = mediaUploader.state().get('selection').first().toJSON();
+				$('#footer_logo_url').val(attachment.url);
+				$('#footer_logo_preview').html(
+					'<img src="'+attachment.url+'" style="max-height:60px;border:1px solid #eee;padding:6px;border-radius:4px;background:#f9f9f9;">'
+				);
+			});
+			mediaUploader.open();
+		});
+	});
+	</script>
 	<?php
 }
 

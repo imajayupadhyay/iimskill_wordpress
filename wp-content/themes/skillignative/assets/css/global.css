@@ -226,13 +226,32 @@ button {
     transition: transform 0.3s ease;
 }
 
-.nav-item.has-mega-menu:hover .dropdown-arrow {
-    transform: rotate(180deg);
-}
+/* Arrow rotation is handled via .mega-menu-open class in the @media block below */
 
 /* Mega Menu */
 .nav-item.has-mega-menu {
     position: static;
+}
+
+/* Invisible bridge: a pseudo-element that fills the gap between the nav link
+   and the mega menu panel so the mouse never leaves the hover target. */
+@media (min-width: 901px) {
+    .nav-item.has-mega-menu > a {
+        position: relative;
+    }
+    .nav-item.has-mega-menu > a::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: -20px;   /* extend downward to cover the gap */
+        height: 20px;
+        background: transparent;
+        display: none;    /* only show when menu is open */
+    }
+    .nav-item.has-mega-menu.mega-menu-open > a::before {
+        display: block;
+    }
 }
 
 .mega-menu {
@@ -247,18 +266,23 @@ button {
     opacity: 0;
     visibility: hidden;
     transform: translateY(-10px);
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s ease;
     z-index: 1000;
     pointer-events: none;
 }
 
-/* Desktop: Show mega menu on hover (only works on desktop) */
+/* Desktop: JS .mega-menu-open class is the sole controller.
+   We no longer rely on CSS :hover which causes race conditions. */
 @media (min-width: 901px) {
-    .nav-item.has-mega-menu:hover .mega-menu {
+    .nav-item.has-mega-menu.mega-menu-open .mega-menu {
         opacity: 1;
         visibility: visible;
         transform: translateY(0);
         pointer-events: auto;
+    }
+
+    .nav-item.has-mega-menu.mega-menu-open .dropdown-arrow {
+        transform: rotate(180deg);
     }
 }
 
@@ -485,16 +509,7 @@ button {
         max-height: 2000px;
     }
 
-    /* Disable all hover effects on mobile */
-    .nav-item.has-mega-menu:hover .mega-menu {
-        /* Override desktop hover */
-        position: static;
-        max-height: 0;
-    }
-
-    .nav-item.has-mega-menu.mega-menu-active:hover .mega-menu {
-        max-height: 2000px;
-    }
+    /* No hover overrides needed — desktop uses JS .mega-menu-open class only */
 
     .mega-menu-container {
         grid-template-columns: 1fr;

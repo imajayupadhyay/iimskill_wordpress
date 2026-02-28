@@ -509,6 +509,44 @@ require get_template_directory() . '/inc/blog-sidebar-settings.php';
 require get_template_directory() . '/inc/footer-settings.php';
 
 /**
+ * Fix nav active state for Course CPT pages.
+ *
+ * WordPress core adds current_page_parent to the Blog menu item whenever
+ * you visit any CPT single (it treats CPTs like posts). Our custom walker
+ * reads $item->classes directly, so the fix must use wp_nav_menu_objects
+ * (which modifies the item objects before the walker runs), not
+ * nav_menu_css_classes (which our walker never reads).
+ *
+ *   1. Strips current_page_parent / current_page_ancestor from the Blog item.
+ *   2. Adds current-menu-ancestor to the Courses mega-menu item so it shows active.
+ */
+function skillignative_fix_course_nav_active( $items, $args ) {
+	if ( ! is_singular( 'course' ) ) {
+		return $items;
+	}
+
+	$false_classes = array( 'current_page_parent', 'current_page_ancestor' );
+	$blog_page_id  = (int) get_option( 'page_for_posts' );
+
+	foreach ( $items as $item ) {
+		// 1. Strip false active from the blog/posts page menu item.
+		if ( $blog_page_id && (int) $item->object_id === $blog_page_id ) {
+			$item->classes = array_values( array_diff( (array) $item->classes, $false_classes ) );
+		}
+
+		// 2. Mark the Courses mega-menu item as the active ancestor.
+		if ( in_array( 'has-mega-menu', (array) $item->classes, true ) ) {
+			if ( ! in_array( 'current-menu-ancestor', (array) $item->classes, true ) ) {
+				$item->classes[] = 'current-menu-ancestor';
+			}
+		}
+	}
+
+	return $items;
+}
+add_filter( 'wp_nav_menu_objects', 'skillignative_fix_course_nav_active', 10, 2 );
+
+/**
  * Fallback menu if no menu is set.
  */
 function skillignative_fallback_menu() {

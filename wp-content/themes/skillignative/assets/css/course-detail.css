@@ -1210,11 +1210,10 @@
 /* Sidebar (Right - Sticky) */
 .curriculum-sidebar {
     position: relative;
+    align-self: start;
 }
 
 .sidebar-sticky {
-    position: sticky;
-    top: 90px;
     display: flex;
     flex-direction: column;
     gap: 20px;

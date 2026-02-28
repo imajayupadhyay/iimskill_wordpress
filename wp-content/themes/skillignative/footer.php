@@ -8,6 +8,7 @@
  */
 
 // Column 1 — About
+$f_logo_url = get_option( '_footer_logo_url', get_template_directory_uri() . '/assets/images/iim-skills-official-logo.png' );
 $f_desc     = get_option( '_footer_description', 'IIM SKILLS is a leading online education platform offering industry-relevant courses in Data Analytics, Digital Marketing, Investment Banking, Financial Modeling, and more.' );
 $f_facebook = get_option( '_footer_facebook_url', '#' );
 $f_twitter  = get_option( '_footer_twitter_url', '#' );
@@ -66,7 +67,7 @@ if ( empty( $f_copyright ) ) {
                 <!-- Footer Column 1 - About -->
                 <div class="footer-column">
                     <div class="footer-logo">
-                        <img src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/iim-skills-official-logo.png' ); ?>" alt="<?php bloginfo( 'name' ); ?>">
+                        <img src="<?php echo esc_url( $f_logo_url ); ?>" alt="<?php bloginfo( 'name' ); ?>">
                     </div>
                     <p class="footer-description">
                         <?php echo esc_html( $f_desc ); ?>

@@ -673,6 +673,72 @@ $cert_logo_items = array_filter( array_map( 'trim', explode( ',', $cur_cert_logo
 </section>
 <!-- /SECTION 4 – CURRICULUM -->
 
+<script>
+(function () {
+	var content = document.querySelector('.curriculum-content');
+	var sidebar = document.querySelector('.curriculum-sidebar');
+	if (!content || !sidebar) return;
+
+	var TOP       = 100; // px from viewport top
+	var fixedLeft = 0;
+	var fixedWidth = 0;
+
+	function capture() {
+		// Capture while sidebar is in normal flow (not fixed)
+		sidebar.style.cssText = '';
+		var r    = sidebar.getBoundingClientRect();
+		fixedLeft  = r.left;
+		fixedWidth = r.width;
+	}
+
+	function reset() {
+		sidebar.style.cssText = '';
+	}
+
+	function fix(top) {
+		sidebar.style.position = 'fixed';
+		sidebar.style.top      = top + 'px';
+		sidebar.style.left     = fixedLeft + 'px';
+		sidebar.style.width    = fixedWidth + 'px';
+		sidebar.style.zIndex   = '10';
+	}
+
+	function tick() {
+		var cr = content.getBoundingClientRect();
+		var sh = sidebar.offsetHeight;
+
+		// Section not yet in view
+		if (cr.top > TOP) {
+			reset();
+			return;
+		}
+
+		// Section completely past viewport
+		if (cr.bottom <= 0) {
+			reset();
+			return;
+		}
+
+		// Calculate top: slide sidebar up smoothly as section ends
+		var top = Math.min(TOP, cr.bottom - sh);
+		fix(top);
+	}
+
+	// Capture natural position once layout is ready
+	requestAnimationFrame(function () {
+		capture();
+		tick();
+	});
+
+	window.addEventListener('scroll', tick, { passive: true });
+
+	window.addEventListener('resize', function () {
+		capture();
+		tick();
+	}, { passive: true });
+}());
+</script>
+
 <!-- ================================================================
      SECTION 5 – SKILLS YOU WILL MASTER
      ================================================================ -->
