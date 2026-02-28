@@ -245,7 +245,7 @@ $assets = get_template_directory_uri() . '/assets';
                     <div class="story-card">
                         <div class="card-media">
                             <img src="<?php echo $assets; ?>/images/success-story2-thumbnail.png" alt="Success Story" class="card-thumbnail">
-                            <video src="<?php echo $assets; ?>/videos/iimskills-video-1.mp4" class="card-video" loop playsinline></video>
+                            <video src="<?php echo $assets; ?>/videos/iimskills-video-1.mp4" class="card-video" muted loop playsinline preload="auto"></video>
                         </div>
                     </div>
                     <?php endfor; ?>
@@ -259,7 +259,7 @@ $assets = get_template_directory_uri() . '/assets';
                         <div class="card-media">
                             <img src="<?php echo esc_url( $thumb_url ); ?>" alt="<?php echo esc_attr( $alt_text ); ?>" class="card-thumbnail">
                             <?php if ( $video_url ) : ?>
-                                <video src="<?php echo esc_url( $video_url ); ?>" class="card-video" loop playsinline></video>
+                                <video src="<?php echo esc_url( $video_url ); ?>" class="card-video" muted loop playsinline preload="auto"></video>
                             <?php endif; ?>
                         </div>
                     </div>

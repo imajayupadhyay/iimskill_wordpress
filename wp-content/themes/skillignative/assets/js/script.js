@@ -151,12 +151,17 @@ storyCards.forEach(card => {
     const thumbnail = card.querySelector('.card-thumbnail');
 
     if (video) {
+        video.muted = true;
+        video.preload = 'auto';
+
         card.addEventListener('mouseenter', () => {
             thumbnail.style.display = 'none';
             video.style.opacity = '1';
-            video.muted = false;
+            video.muted = true;
             video.currentTime = 0;
-            video.play().catch(err => console.log('Video play error:', err));
+            video.play().then(() => {
+                video.muted = false;
+            }).catch(err => console.log('Video play error:', err));
         });
 
         card.addEventListener('mouseleave', () => {
@@ -193,19 +198,21 @@ const demoTrack = document.querySelector('.demo-marquee-track');
 
 if (demoSlider && demoTrack) {
     let isDown = false;
+    let isDragging = false;
     let startX;
     let scrollLeft;
 
     // Mouse Events
     demoSlider.addEventListener('mousedown', (e) => {
         isDown = true;
-        demoSlider.classList.add('dragging');
+        isDragging = false;
         startX = e.pageX - demoSlider.offsetLeft;
         scrollLeft = demoSlider.scrollLeft;
     });
 
     demoSlider.addEventListener('mouseleave', () => {
         isDown = false;
+        isDragging = false;
         demoSlider.classList.remove('dragging');
     });
 
@@ -214,11 +221,25 @@ if (demoSlider && demoTrack) {
         demoSlider.classList.remove('dragging');
     });
 
+    // Prevent clicks (on links etc.) only when the user actually dragged
+    demoSlider.addEventListener('click', (e) => {
+        if (isDragging) {
+            e.preventDefault();
+            e.stopPropagation();
+            isDragging = false;
+        }
+    }, true);
+
     demoSlider.addEventListener('mousemove', (e) => {
         if (!isDown) return;
-        e.preventDefault();
         const x = e.pageX - demoSlider.offsetLeft;
         const walk = (x - startX) * 2;
+        // Only treat as drag if moved more than 5px
+        if (Math.abs(walk) > 5) {
+            isDragging = true;
+            demoSlider.classList.add('dragging');
+            e.preventDefault();
+        }
         demoSlider.scrollLeft = scrollLeft - walk;
     });
 
