@@ -507,6 +507,7 @@ button {
     /* Mobile: Show mega menu on click (active class) */
     .nav-item.has-mega-menu.mega-menu-active .mega-menu {
         max-height: 2000px;
+        pointer-events: auto;
     }
 
     /* No hover overrides needed — desktop uses JS .mega-menu-open class only */

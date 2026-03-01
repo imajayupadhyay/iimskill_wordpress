@@ -10,6 +10,7 @@
     padding: 40px 0 0;
     overflow: hidden;
     width: 100%;
+    margin-bottom: 0;
 }
 
 .hero-container {
@@ -18,7 +19,7 @@
     margin: 0 auto;
     padding: 0;
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: center;
     gap: 20px;
     position: relative;
@@ -27,13 +28,13 @@
 /* Hero Images */
 .hero-image {
     position: relative;
-    flex-shrink: 0;
-    flex-basis: auto;
+    flex: 0 0 27%;
+    max-width: 27%;
 }
 
 .hero-image img {
-    height: 450px;
-    width: auto;
+    width: 100%;
+    height: auto;
     max-width: 100%;
     object-fit: contain;
     display: block;
@@ -52,14 +53,6 @@
     .hero-container {
         padding: 0 40px;
         gap: 40px;
-    }
-    
-    .hero-image-left {
-        margin-left: -30px;
-    }
-    
-    .hero-image-right {
-        margin-right: -30px;
     }
 }
 
@@ -134,8 +127,8 @@
 
 /* Hero Content */
 .hero-content {
-    flex: 1 1 auto;
-    max-width: 850px;
+    flex: 0 0 46%;
+    max-width: 46%;
     min-width: 0;
     text-align: center;
     padding: 0 20px;
@@ -166,7 +159,7 @@
     justify-content: center;
     background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
     border-radius: 12px;
-    padding: 20px 15px;
+    padding: 20px 0;
     margin-bottom: 35px;
     box-shadow: 0 4px 20px rgba(21, 93, 252, 0.08),
                 0 2px 8px rgba(0, 0, 0, 0.06),
@@ -286,11 +279,7 @@
     .hero-container {
         gap: 15px;
     }
-    
-    .hero-image img {
-        height: 400px;
-    }
-    
+
     .hero-content {
         padding: 0 15px;
     }
@@ -300,17 +289,12 @@
     .hero-container {
         gap: 10px;
     }
-    
-    .hero-image img {
-        height: 380px;
-    }
 
     .hero-title {
         font-size: 36px;
     }
 
     .hero-content {
-        max-width: 600px;
         padding: 0 10px;
     }
 
@@ -330,9 +314,12 @@
     .hero-image-right {
         margin: 0;
         display: none;
+        flex: 0 0 100%;
+        max-width: 100%;
     }
 
     .hero-content {
+        flex: 0 0 100%;
         max-width: 100%;
         padding: 0;
     }
@@ -2732,6 +2719,12 @@
 }
 
 /* Media Card */
+.media-card-link {
+    display: contents;
+    text-decoration: none;
+    color: inherit;
+}
+
 .media-card {
     flex-shrink: 0;
     width: 340px;

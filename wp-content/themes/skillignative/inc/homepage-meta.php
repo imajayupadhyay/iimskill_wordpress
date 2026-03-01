@@ -1266,6 +1266,13 @@ function skillignative_media_section_callback( $post ) {
 					<input type="text" name="mp_cards[<?php echo $i; ?>][logo_text]" value="<?php echo esc_attr( $card['logo_text'] ?? '' ); ?>" placeholder="Text logo HTML" style="width:150px;flex:none;<?php echo ( $card['logo_type'] ?? 'image' ) !== 'text' ? 'opacity:0.4;' : ''; ?>" class="mp-logo-text-input">
 					<!-- Description -->
 					<input type="text" name="mp_cards[<?php echo $i; ?>][desc]" value="<?php echo esc_attr( $card['desc'] ?? '' ); ?>" placeholder="Description / headline" style="flex:1;min-width:200px;">
+					<!-- Link URL -->
+					<input type="url" name="mp_cards[<?php echo $i; ?>][link_url]" value="<?php echo esc_attr( $card['link_url'] ?? '' ); ?>" placeholder="Link URL (optional)" style="flex:1;min-width:200px;">
+					<!-- Open in new tab -->
+					<label style="white-space:nowrap;flex:none;">
+						<input type="checkbox" name="mp_cards[<?php echo $i; ?>][link_new_tab]" value="1" <?php checked( ! empty( $card['link_new_tab'] ) ); ?>>
+						New tab
+					</label>
 				</div>
 				<button type="button" class="button-link-delete mp-remove-card">&#10005;</button>
 			</div>
@@ -1288,7 +1295,10 @@ function skillignative_media_section_callback( $post ) {
 				'<img src="" class="mp-logo-preview" style="max-width:80px;max-height:40px;border:1px solid #ddd;border-radius:4px;display:none;">' +
 				'<button type="button" class="button mp-upload-logo">Logo</button></div>' +
 				'<input type="text" name="mp_cards[' + mpIndex + '][logo_text]" value="" placeholder="Text logo HTML" style="width:150px;flex:none;opacity:0.4;" class="mp-logo-text-input">' +
-				'<input type="text" name="mp_cards[' + mpIndex + '][desc]" value="" placeholder="Description / headline" style="flex:1;min-width:200px;"></div>' +
+				'<input type="text" name="mp_cards[' + mpIndex + '][desc]" value="" placeholder="Description / headline" style="flex:1;min-width:200px;">' +
+				'<input type="url" name="mp_cards[' + mpIndex + '][link_url]" value="" placeholder="Link URL (optional)" style="flex:1;min-width:200px;">' +
+				'<label style="white-space:nowrap;flex:none;"><input type="checkbox" name="mp_cards[' + mpIndex + '][link_new_tab]" value="1"> New tab</label>' +
+				'</div>' +
 				'<button type="button" class="button-link-delete mp-remove-card">&#10005;</button></div>';
 			$('#mp-cards-list').append(html);
 			mpIndex++;
@@ -1561,10 +1571,12 @@ function skillignative_save_homepage_meta( $post_id ) {
 		foreach ( $_POST['mp_cards'] as $card ) {
 			if ( ! empty( $card['desc'] ) || ! empty( $card['logo_id'] ) || ! empty( $card['logo_text'] ) ) {
 				$cards[] = array(
-					'logo_type' => sanitize_text_field( $card['logo_type'] ),
-					'logo_id'   => absint( $card['logo_id'] ),
-					'logo_text' => wp_kses_post( $card['logo_text'] ),
-					'desc'      => sanitize_text_field( $card['desc'] ),
+					'logo_type'    => sanitize_text_field( $card['logo_type'] ),
+					'logo_id'      => absint( $card['logo_id'] ),
+					'logo_text'    => wp_kses_post( $card['logo_text'] ),
+					'desc'         => sanitize_text_field( $card['desc'] ),
+					'link_url'     => esc_url_raw( $card['link_url'] ?? '' ),
+					'link_new_tab' => ! empty( $card['link_new_tab'] ) ? 1 : 0,
 				);
 			}
 		}

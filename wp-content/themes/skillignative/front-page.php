@@ -775,7 +775,14 @@ $assets = get_template_directory_uri() . '/assets';
                 <div class="media-slider">
                     <?php for ( $set = 0; $set < 2; $set++ ) : ?>
                         <?php foreach ( $mp_cards as $card ) : ?>
+                        <?php
+                        $card_link    = ! empty( $card['link_url'] ) ? $card['link_url'] : '';
+                        $card_new_tab = ! empty( $card['link_new_tab'] );
+                        ?>
                         <div class="media-card">
+                            <?php if ( $card_link ) : ?>
+                            <a href="<?php echo esc_url( $card_link ); ?>"<?php echo $card_new_tab ? ' target="_blank" rel="noopener noreferrer"' : ''; ?> class="media-card-link">
+                            <?php endif; ?>
                             <?php if ( ( $card['logo_type'] ?? 'image' ) === 'image' ) : ?>
                                 <div class="media-logo">
                                     <?php
@@ -793,6 +800,9 @@ $assets = get_template_directory_uri() . '/assets';
                                 <div class="media-logo-text"><?php echo wp_kses_post( $card['logo_text'] ); ?></div>
                             <?php endif; ?>
                             <p class="media-description"><?php echo esc_html( $card['desc'] ); ?></p>
+                            <?php if ( $card_link ) : ?>
+                            </a>
+                            <?php endif; ?>
                         </div>
                         <?php endforeach; ?>
                     <?php endfor; ?>
